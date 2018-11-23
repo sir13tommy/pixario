@@ -1,0 +1,28 @@
+{"frames": [
+
+{
+	"filename": "cta-button.png",
+	"frame": {"x":0,"y":0,"w":350,"h":148},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":350,"h":148},
+	"sourceSize": {"w":350,"h":148}
+},
+{
+	"filename": "hand.png",
+	"frame": {"x":350,"y":0,"w":100,"h":100},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":100,"h":100},
+	"sourceSize": {"w":100,"h":100}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "sprite.png",
+	"format": "RGBA8888",
+	"size": {"w":450,"h":148},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:727f9a84dad924dc6bb7c8052a6c3a84:f0234d273c385e36acce496a6ab7102e:68d88b3cf7eafc9b5accfffdfb2fda91$"
+}
+}
