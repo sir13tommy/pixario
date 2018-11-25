@@ -6,7 +6,7 @@ import Debug from 'phaser-debug/dist/phaser-debug'
 
 export default class extends Phaser.State {
   init() {
-    this.stage.backgroundColor = '#242424'
+    this.stage.backgroundColor = '#ffffff'
     this.fontsReady = false
     this.fontsLoaded = this.fontsLoaded.bind(this)
     if (__DEV__) {
