@@ -44,11 +44,64 @@ export default class extends Phaser.State {
       left: 16
     }
 
+    this.userProgressVal = 0
+    this.userProgressMax = 12
+
+    let canvas = game.add.group(game.world, 'canvas')
+
     let uiBlock = game.make.graphics(0, 0)
     uiBlock.beginFill(0xffffff)
-    uiBlock.drawRect(0, 0, game.width, 172)
+    uiBlock.drawRect(0, 0, game.width, 222)
     uiBlock.alignIn(game.camera.view, Phaser.BOTTOM_CENTER, 0, 0)
     game.world.add(uiBlock)
+
+    let namesStyle = {
+      font: 'normal 14px sf_pro_textregular',
+      fill: '#353535'
+    }
+    let progressBarWidth = game.width - viewPaddings.right - viewPaddings.left
+    let progressBarHeight = 3
+    // User progress bar
+    let userProgress = game.add.group(game.world, 'user progress')
+
+    let userProgressBack = game.make.graphics(0, 0)
+    userProgressBack.beginFill(0xf1f1f1)
+    userProgressBack.drawRect(0, 0, progressBarWidth, progressBarHeight)
+    userProgress.add(userProgressBack)
+
+    let userProgressBar = game.make.graphics(0, 0)
+    this.userProgressBar = userProgressBar
+    userProgressBar.beginFill(0x7520ff)
+    userProgressBar.drawRect(0, 0, progressBarWidth, progressBarHeight)
+    userProgressBar.scale.set(0.01, 1)
+    userProgress.add(userProgressBar)
+
+    let userName = game.make.text(0, 0, 'Baryshpolets', namesStyle)
+    userProgress.add(userName)
+    userName.alignTo(userProgressBack, Phaser.TOP_LEFT, 0, 4)
+
+    userProgress.alignIn(uiBlock, Phaser.TOP_LEFT, -viewPaddings.left, -viewPaddings.top)
+
+    // enemy progress bar
+    let enemyProgress = game.add.group(game.world, 'enemy progress')
+
+    let enemyProgressBack = game.make.graphics(0, 0)
+    enemyProgressBack.beginFill(0xf1f1f1)
+    enemyProgressBack.drawRect(0, 0, progressBarWidth, progressBarHeight)
+    enemyProgress.add(enemyProgressBack)
+
+    let enemyProgressBar = game.make.graphics(0, 0)
+    this.enemyProgressBar = enemyProgressBar
+    enemyProgressBar.beginFill(0xff5a5f)
+    enemyProgressBar.drawRect(0, 0, progressBarWidth, progressBarHeight)
+    enemyProgressBar.scale.set(0.01, 1)
+    enemyProgress.add(enemyProgressBar)
+
+    let enemyName = game.make.text(0, 0, 'Zhulidin', namesStyle)
+    enemyProgress.add(enemyName)
+    enemyName.alignTo(userProgressBack, Phaser.TOP_LEFT, 0, 4)
+
+    enemyProgress.alignTo(userProgress, Phaser.BOTTOM_LEFT, 0, 8)
 
     let canvasPaddings = {
       top: 20,
@@ -64,8 +117,6 @@ export default class extends Phaser.State {
 
     let currentImgIdx = 0
     let currentFrameIdx = 0
-
-    let canvas = game.add.group(game.world, 'canvas')
 
     let sprite = game.make.image(0, 0, 'assets', images[currentImgIdx].frames[currentFrameIdx])
     sprite.anchor.set(0.5)
@@ -107,7 +158,7 @@ export default class extends Phaser.State {
       .yoyo(true)
       .start()
 
-    game.input.onDown.add(step)
+    game.input.onDown.add(step, this)
 
     function step () {
       if (!enableInput) return
@@ -154,8 +205,9 @@ export default class extends Phaser.State {
           }
         }
       }
-      if (!images[currentImgIdx] && !isFinish) {
-        finishGame()
+      this.userProgressVal = 4 * currentImgIdx + currentFrameIdx + 1
+      if (!images[currentImgIdx] && !this.isFinish) {
+        finishGame.call(this)
       }
     }
 
@@ -170,9 +222,8 @@ export default class extends Phaser.State {
     }
 
     // finish game function
-    let isFinish = false
     function finishGame () {
-      isFinish = true
+      this.isFinish = true
       fadeOutCamera()
 
       hint.text = 'Get a Chance to Win Real Money'
@@ -232,7 +283,19 @@ export default class extends Phaser.State {
     startGame()
   }
 
-  update () { }
+  update () {
+    if (!this.isFinish) {
+      let userScaleFactor = Math.min(this.userProgressVal / this.userProgressMax, 1)
+      userScaleFactor = userScaleFactor.toFixed(2)
+      if (this.userProgressBar.scale.x < userScaleFactor) {
+        this.userProgressBar.scale.x += 0.01
+      }
+
+      if (this.enemyProgressBar.scale.x < userScaleFactor - 0.1) {
+        this.enemyProgressBar.scale.x += 0.0003
+      }
+    }
+  }
 
   render() {
     if (__DEV__) {
