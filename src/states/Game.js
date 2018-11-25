@@ -37,6 +37,11 @@ export default class extends Phaser.State {
   create (game) {
     let enableInput = false
 
+    let sfx = {
+      click: game.add.audio('click'),
+      loop: game.add.audio('loop')
+    }
+
     const viewPaddings = {
       top: 16,
       right: 16,
@@ -56,11 +61,11 @@ export default class extends Phaser.State {
     game.world.add(uiBlock)
 
     let namesStyle = {
-      font: 'normal 14px sf_pro_textregular',
+      font: 'normal 16px sf_pro_textregular',
       fill: '#353535'
     }
     let progressBarWidth = game.width - viewPaddings.right - viewPaddings.left
-    let progressBarHeight = 3
+    let progressBarHeight = 4
     // User progress bar
     let userProgress = game.add.group(game.world, 'user progress')
 
@@ -163,12 +168,16 @@ export default class extends Phaser.State {
     function step () {
       if (!enableInput) return
 
+      if (this.isFinish) return
+
       if (showHint) {
         fadeInCamera()
         hand.visible = false
         hint.visible = false
         showHint = false
       }
+
+      sfx.click.play()
 
       currentFrameIdx++
       if (images[currentImgIdx]) {
@@ -219,6 +228,9 @@ export default class extends Phaser.State {
     let showHint = true
     function startGame () {
       fadeOutCamera()
+      sfx.loop.onDecoded.addOnce(() => {
+        sfx.loop.play('', 0, 1, true)
+      })
     }
 
     // finish game function
@@ -229,6 +241,19 @@ export default class extends Phaser.State {
       hint.text = 'Get a Chance to Win Real Money'
       hint.visible = true
       hint.alignIn(game.camera.view, Phaser.CENTER, 0, -60)
+
+      let scoreText = game.make.text(0, 0, 'Score: ' + (this.userProgressMax * 1000).toString(), {
+        font: 'normal 46px sf_pro_textregular',
+        fill: '#ffd000'
+      })
+      scoreText.anchor.set(0.5)
+      scoreText.alignTo(hint, Phaser.TOP_CENTER, 0, 10)
+      game.stage.add(scoreText)
+
+      game.add.tween(scoreText.scale)
+        .from({x: 0, y: 0})
+        .easing(Phaser.Easing.Bounce.Out)
+        .start()
 
       let ctaBtnFrame = 'cta-button.png'
       let ctaBtn = game.make.button(
@@ -253,9 +278,15 @@ export default class extends Phaser.State {
       game.stage.add(ctaBtn)
       ctaBtn.alignTo(hint, Phaser.BOTTOM_CENTER, 0, 10)
 
+      let pulseCta = game.add.tween(ctaBtn.scale)
+        .to({x: 0.8, y: 0.8})
+        .repeat(-1)
+        .yoyo(true)
+        
       game.add.tween(ctaBtn.scale)
         .from({x: 0, y: 0}, Phaser.Timer.SECOND * 0.5)
         .easing(Phaser.Easing.Bounce.Out)
+        .chain(pulseCta)
         .start()
     }
 
