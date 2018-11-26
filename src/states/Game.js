@@ -81,7 +81,7 @@ export default class extends Phaser.State {
     userProgressBar.scale.set(0.01, 1)
     userProgress.add(userProgressBar)
 
-    let userName = game.make.text(0, 0, 'Baryshpolets', namesStyle)
+    let userName = game.make.text(0, 0, 'You', namesStyle)
     userProgress.add(userName)
     userName.alignTo(userProgressBack, Phaser.TOP_LEFT, 0, 4)
 
@@ -102,7 +102,7 @@ export default class extends Phaser.State {
     enemyProgressBar.scale.set(0.01, 1)
     enemyProgress.add(enemyProgressBar)
 
-    let enemyName = game.make.text(0, 0, 'Zhulidin', namesStyle)
+    let enemyName = game.make.text(0, 0, 'Opponent', namesStyle)
     enemyProgress.add(enemyName)
     enemyName.alignTo(userProgressBack, Phaser.TOP_LEFT, 0, 4)
 
@@ -125,6 +125,7 @@ export default class extends Phaser.State {
 
     let sprite = game.make.image(0, 0, 'assets', images[currentImgIdx].frames[currentFrameIdx])
     sprite.anchor.set(0.5)
+    sprite.smoothed = false
     canvas.add(sprite)
     game.scale.scaleSprite(canvas, canvasSize.width, canvasSize.height, true)
     canvas.alignIn(game.camera.view, Phaser.TOP_CENTER, 0, -canvasPaddings.top)
@@ -155,6 +156,7 @@ export default class extends Phaser.State {
     
     let hand = game.make.image(game.world.centerX, game.world.centerY, 'assets', 'hand.png')
     hand.anchor.set(0.5)
+    hand.smoothed = true
     game.stage.add(hand)
     hand.alignTo(hint, Phaser.BOTTOM_CENTER, 0, 10)
     game.add.tween(hand.scale)
@@ -183,6 +185,7 @@ export default class extends Phaser.State {
       if (images[currentImgIdx]) {
         if (images[currentImgIdx].frames[currentFrameIdx]) {
           let sprite = game.make.image(0, 0, 'assets', images[currentImgIdx].frames[currentFrameIdx])
+          sprite.smoothed = false
           sprite.anchor.set(0.5)
           canvas.add(sprite)
         } else {
@@ -266,6 +269,7 @@ export default class extends Phaser.State {
         ctaBtnFrame,
         ctaBtnFrame
       )
+      ctaBtn.smoothed = true
       ctaBtn.anchor.set(0.5)
 
       let ctaBtnText = game.make.text(0, -5, 'Install Now', {
