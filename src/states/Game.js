@@ -4,26 +4,26 @@ import Phaser from 'phaser'
 const images = [{
     name: 'penguin',
     frames: [
-      'penguin_1.png',
-      'penguin_2.png',
-      'penguin_3.png',
-      'penguin_4.png'
+      {name: 'penguin_1.png', cursor: {x: 89, y: 89}},
+      {name: 'penguin_2.png', cursor: {x: 118, y: 37}},
+      {name: 'penguin_3.png', cursor: {x: 97, y: 62}},
+      {name: 'penguin_4.png', cursor: {x: 75, y: 150}}
     ]
   }, {
     name: 'lips',
     frames: [
-      'lips_1.png',
-      'lips_2.png',
-      'lips_3.png',
-      'lips_4.png'
+      {name: 'lips_1.png', cursor: {x: 105, y: 67}},
+      {name: 'lips_2.png', cursor: {x: 40, y: 98}},
+      {name: 'lips_3.png', cursor: {x: 91, y: 24}},
+      {name: 'lips_4.png', cursor: {x: 75, y: 150}}
     ]
   }, {
     name: 'cake',
     frames: [
-      'cake_1.png',
-      'cake_2.png',
-      'cake_3.png',
-      'cake_4.png'
+      {name: 'cake_1.png', cursor: {x: 75, y: 49}},
+      {name: 'cake_2.png', cursor: {x: 76, y: 136}},
+      {name: 'cake_3.png', cursor: {x: 96, y: 54}},
+      {name: 'cake_4.png', cursor: {x: 75, y: 150}}
     ]
   }
 ]
@@ -123,12 +123,25 @@ export default class extends Phaser.State {
     let currentImgIdx = 0
     let currentFrameIdx = 0
 
-    let sprite = game.make.image(0, 0, 'assets', images[currentImgIdx].frames[currentFrameIdx])
+    let sprite = game.make.image(0, 0, 'assets', images[currentImgIdx].frames[currentFrameIdx].name)
     sprite.anchor.set(0.5)
     sprite.smoothed = false
     canvas.add(sprite)
     game.scale.scaleSprite(canvas, canvasSize.width, canvasSize.height, true)
     canvas.alignIn(game.camera.view, Phaser.TOP_CENTER, 0, -canvasPaddings.top)
+
+    let cursor = game.make.image(0, 0, 'ui', 'hand.png')
+    this.cursor = cursor
+    cursor.anchor.set(0.5)
+    cursor.smoothed = true
+    game.world.add(cursor)
+    let cursorIdle = game.add.tween(cursor.scale)
+      .to({x: 0.7, y: 0.7})
+      .repeat(-1)
+      .yoyo(true)
+      .start()
+
+    updateCursor()
 
     enableInput = false
     game.add.tween(canvas.scale)
@@ -138,32 +151,28 @@ export default class extends Phaser.State {
       .onComplete.add(() => {
         enableInput = true
       })
-      
-    let hint = game.make.text(game.world.centerX, game.world.centerY - 60, 'tap to coloring'.toUpperCase(), {
-      font: 'normal 45px sf_pro_textregular',
+    
+    let hint = game.make.image(0, 0, 'ui', 'hint.png')
+    hint.anchor.set(0.5)
+    hint.alignTo(cursor, Phaser.BOTTOM_CENTER, 0, 0)
+    hint.scale.set(0.7)
+    game.world.add(hint)
+
+    game.add.tween(hint.scale)
+      .from({x: 0, y: 0})
+      .easing(Phaser.Easing.Bounce.Out)
+      .delay(Phaser.Timer.SECOND * 0.5)
+      .start()
+    
+    let hintContent = game.make.text(0, 0, 'tap to coloring'.toUpperCase(), {
+      font: 'normal 35px sf_pro_textregular',
       fill: '#ffffff',
       align: 'center',
       wordWrap: true,
       wordWrapWidth: game.width - viewPaddings.right - viewPaddings.left
     })
-    hint.anchor.set(0.5)
-    game.stage.add(hint)
-    game.add.tween(hint)
-      .to({alpha: 0.6})
-      .repeat(-1)
-      .yoyo(true)
-      .start()
-    
-    let hand = game.make.image(game.world.centerX, game.world.centerY, 'assets', 'hand.png')
-    hand.anchor.set(0.5)
-    hand.smoothed = true
-    game.stage.add(hand)
-    hand.alignTo(hint, Phaser.BOTTOM_CENTER, 0, 10)
-    game.add.tween(hand.scale)
-      .to({x: 0.7, y: 0.7})
-      .repeat(-1)
-      .yoyo(true)
-      .start()
+    hintContent.anchor.set(0.5)
+    hint.addChild(hintContent)
 
     game.input.onDown.add(step, this)
 
@@ -173,8 +182,6 @@ export default class extends Phaser.State {
       if (this.isFinish) return
 
       if (showHint) {
-        fadeInCamera()
-        hand.visible = false
         hint.visible = false
         showHint = false
       }
@@ -184,7 +191,7 @@ export default class extends Phaser.State {
       currentFrameIdx++
       if (images[currentImgIdx]) {
         if (images[currentImgIdx].frames[currentFrameIdx]) {
-          let sprite = game.make.image(0, 0, 'assets', images[currentImgIdx].frames[currentFrameIdx])
+          let sprite = game.make.image(0, 0, 'assets', images[currentImgIdx].frames[currentFrameIdx].name)
           sprite.smoothed = false
           sprite.anchor.set(0.5)
           canvas.add(sprite)
@@ -200,7 +207,7 @@ export default class extends Phaser.State {
               .start()
               .onComplete.add(() => {
                 clearCanvas()
-                let sprite = game.make.image(0, 0, 'assets', images[currentImgIdx].frames[currentFrameIdx])
+                let sprite = game.make.image(0, 0, 'assets', images[currentImgIdx].frames[currentFrameIdx].name)
                 sprite.anchor.set(0.5)
                 canvas.add(sprite)
                 game.scale.scaleSprite(canvas, canvasSize.width, canvasSize.height, true)
@@ -217,9 +224,42 @@ export default class extends Phaser.State {
           }
         }
       }
+
+      updateCursor()
+
+      // update user progress
       this.userProgressVal = 4 * currentImgIdx + currentFrameIdx + 1
       if (!images[currentImgIdx] && !this.isFinish) {
         finishGame.call(this)
+      }
+    }
+
+    function updateCursor () {
+      if (images[currentImgIdx] && images[currentImgIdx].frames[currentFrameIdx]) {
+        let cursorPos = images[currentImgIdx] && images[currentImgIdx].frames[currentFrameIdx].cursor
+        if (cursorPos) {
+          if (cursor.hidding === true) {
+            cursor.hidding = false
+            cursor.hiddingTween.stop()            
+            game.add.tween(cursor.scale)
+              .to({x: 1, y: 1}, Phaser.Timer.SECOND * 0.2)
+              .easing(Phaser.Easing.Bounce.In)
+              .start()
+              .onComplete.addOnce(() => {
+                cursorIdle.resume()
+              })
+          }
+          let { x: cursorX, y: cursorY} = cursorPos
+          cursor.left = canvas.left + cursorX * canvas.scale.x
+          cursor.top = canvas.top + cursorY * canvas.scale.y
+        } else {
+          cursorIdle.pause()
+          cursor.hidding = true
+          cursor.hiddingTween = game.add.tween(cursor.scale)
+            .to({x: 0, y: 0}, Phaser.Timer.SECOND * 0.2)
+            .easing(Phaser.Easing.Bounce.In)
+            .start()
+        }
       }
     }
 
@@ -230,7 +270,6 @@ export default class extends Phaser.State {
     // start game function
     let showHint = true
     function startGame () {
-      fadeOutCamera()
       sfx.loop.onDecoded.addOnce(() => {
         sfx.loop.play('', 0, 1, true)
       })
@@ -238,68 +277,7 @@ export default class extends Phaser.State {
 
     // finish game function
     function finishGame () {
-      this.isFinish = true
-      fadeOutCamera()
-
-      hint.text = 'Get a Chance to Win Real Money'
-      hint.visible = true
-      hint.alignIn(game.camera.view, Phaser.CENTER, 0, -60)
-
-      let scoreText = game.make.text(0, 0, 'Score: ' + (this.userProgressMax * 1000).toString(), {
-        font: 'normal 46px sf_pro_textregular',
-        fill: '#ffd000'
-      })
-      scoreText.anchor.set(0.5)
-      scoreText.alignTo(hint, Phaser.TOP_CENTER, 0, 10)
-      game.stage.add(scoreText)
-
-      game.add.tween(scoreText.scale)
-        .from({x: 0, y: 0})
-        .easing(Phaser.Easing.Bounce.Out)
-        .start()
-
-      let ctaBtnFrame = 'cta-button.png'
-      let ctaBtn = game.make.button(
-        0,
-        0,
-        'assets',
-        ctaAction,
-        null,
-        ctaBtnFrame,
-        ctaBtnFrame,
-        ctaBtnFrame
-      )
-      ctaBtn.smoothed = true
-      ctaBtn.anchor.set(0.5)
-
-      let ctaBtnText = game.make.text(0, -5, 'Install Now', {
-        font: 'normal 35px sf_pro_textregular',
-        color: '#000000'
-      })
-      ctaBtnText.anchor.set(0.5)
-      ctaBtn.addChild(ctaBtnText)
-
-      game.stage.add(ctaBtn)
-      ctaBtn.alignTo(hint, Phaser.BOTTOM_CENTER, 0, 10)
-
-      let pulseCta = game.add.tween(ctaBtn.scale)
-        .to({x: 0.8, y: 0.8})
-        .repeat(-1)
-        .yoyo(true)
-        
-      game.add.tween(ctaBtn.scale)
-        .from({x: 0, y: 0}, Phaser.Timer.SECOND * 0.5)
-        .easing(Phaser.Easing.Bounce.Out)
-        .chain(pulseCta)
-        .start()
-    }
-
-    function ctaAction () {
-      if (typeof FbPlayableAd !== 'undefined' && FbPlayableAd.onCTAClick) {
-        FbPlayableAd.onCTAClick()
-      } else {
-        console.log('CTA click')
-      }
+      game.state.start('Finish')
     }
 
     function fadeOutCamera (opacity) {
