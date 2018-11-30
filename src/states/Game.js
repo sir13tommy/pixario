@@ -5,25 +5,25 @@ const images = [{
     name: 'penguin',
     frames: [
       {name: 'penguin_1.png', cursor: {x: 89, y: 89}},
-      {name: 'penguin_2.png', cursor: {x: 118, y: 37}},
-      {name: 'penguin_3.png', cursor: {x: 97, y: 62}},
-      {name: 'penguin_4.png', cursor: {x: 75, y: 150}}
+      {name: 'penguin_2.png'},
+      {name: 'penguin_3.png'},
+      {name: 'penguin_4.png'}
     ]
   }, {
     name: 'lips',
     frames: [
-      {name: 'lips_1.png', cursor: {x: 105, y: 67}},
-      {name: 'lips_2.png', cursor: {x: 40, y: 98}},
-      {name: 'lips_3.png', cursor: {x: 91, y: 24}},
-      {name: 'lips_4.png', cursor: {x: 75, y: 150}}
+      {name: 'lips_1.png', cursor: {x: 119, y: 63}},
+      {name: 'lips_3.png'},
+      {name: 'lips_2.png'},
+      {name: 'lips_4.png'}
     ]
   }, {
     name: 'cake',
     frames: [
       {name: 'cake_1.png', cursor: {x: 75, y: 49}},
-      {name: 'cake_2.png', cursor: {x: 76, y: 136}},
-      {name: 'cake_3.png', cursor: {x: 96, y: 54}},
-      {name: 'cake_4.png', cursor: {x: 75, y: 150}}
+      {name: 'cake_2.png'},
+      {name: 'cake_3.png'},
+      {name: 'cake_4.png'}
     ]
   }
 ]
@@ -56,7 +56,7 @@ export default class extends Phaser.State {
 
     let uiBlock = game.make.graphics(0, 0)
     uiBlock.beginFill(0xffffff)
-    uiBlock.drawRect(0, 0, game.width, 222)
+    uiBlock.drawRect(0, 0, game.width, 152)
     uiBlock.alignIn(game.camera.view, Phaser.BOTTOM_CENTER, 0, 0)
     game.world.add(uiBlock)
 
@@ -154,8 +154,11 @@ export default class extends Phaser.State {
     
     let hint = game.make.image(0, 0, 'ui', 'hint.png')
     hint.anchor.set(0.5)
-    hint.alignTo(cursor, Phaser.BOTTOM_CENTER, 0, 0)
     hint.scale.set(0.7)
+    hint.alignTo(cursor, Phaser.BOTTOM_CENTER, 0, 0)
+    if (hint.right > game.width - 10) {
+      hint.right = game.width - 10
+    }
     game.world.add(hint)
 
     game.add.tween(hint.scale)
@@ -189,13 +192,20 @@ export default class extends Phaser.State {
       sfx.click.play()
 
       currentFrameIdx++
+      if (currentFrameIdx === 1) {
+        updateCursor()
+      }
+
       if (images[currentImgIdx]) {
-        if (images[currentImgIdx].frames[currentFrameIdx]) {
+        let { frames } = images[currentImgIdx]
+        if (frames[currentFrameIdx]) {
           let sprite = game.make.image(0, 0, 'assets', images[currentImgIdx].frames[currentFrameIdx].name)
           sprite.smoothed = false
           sprite.anchor.set(0.5)
           canvas.add(sprite)
-        } else {
+        }
+
+        if (frames.length - 1 === currentFrameIdx) {
           currentFrameIdx = 0
           currentImgIdx++
           if (images[currentImgIdx]) {
@@ -204,6 +214,7 @@ export default class extends Phaser.State {
             game.add.tween(canvas.scale)
               .to({x: 0, y: 0}, Phaser.Timer.SECOND * 0.5)
               .easing(Phaser.Easing.Bounce.In)
+              .delay(Phaser.Timer.HALF)
               .start()
               .onComplete.add(() => {
                 clearCanvas()
@@ -219,31 +230,36 @@ export default class extends Phaser.State {
                   .start()
                   .onComplete.add(() => {
                     enableInput = true
+                    updateCursor()
                   })
               })
           }
         }
       }
 
-      updateCursor()
-
       // update user progress
       this.userProgressVal = 4 * currentImgIdx + currentFrameIdx + 1
       if (!images[currentImgIdx] && !this.isFinish) {
-        finishGame.call(this)
+        enableInput = false        
+        setTimeout(finishGame.bind(this), Phaser.Timer.HALF )
       }
     }
 
+    // save scale idle factors
+    let scaleX
+    let scaleY
     function updateCursor () {
       if (images[currentImgIdx] && images[currentImgIdx].frames[currentFrameIdx]) {
         let cursorPos = images[currentImgIdx] && images[currentImgIdx].frames[currentFrameIdx].cursor
         if (cursorPos) {
-          if (cursor.hidding === true) {
-            cursor.hidding = false
-            cursor.hiddingTween.stop()            
-            game.add.tween(cursor.scale)
-              .to({x: 1, y: 1}, Phaser.Timer.SECOND * 0.2)
-              .easing(Phaser.Easing.Bounce.In)
+          if (cursor.hiddingTween && cursor.hiddingTween.isRunning) {
+            cursor.hiddingTween.stop()
+          }
+          if (!cursor.visible) {
+            cursor.visible = true
+            cursor.showTween = game.add.tween(cursor.scale)
+              .to({x: scaleX || 1, y: scaleY || 1}, Phaser.Timer.SECOND * 0.2)
+              // .easing(Phaser.Easing.Bounce.Out)
               .start()
               .onComplete.addOnce(() => {
                 cursorIdle.resume()
@@ -254,11 +270,16 @@ export default class extends Phaser.State {
           cursor.top = canvas.top + cursorY * canvas.scale.y
         } else {
           cursorIdle.pause()
-          cursor.hidding = true
+          scaleX = cursor.scale.x
+          scaleY = cursor.scale.y
+          if (cursor.showTween && cursor.showTween.isRunning) {
+            cursor.showTween.stop()
+          }
           cursor.hiddingTween = game.add.tween(cursor.scale)
             .to({x: 0, y: 0}, Phaser.Timer.SECOND * 0.2)
             .easing(Phaser.Easing.Bounce.In)
             .start()
+            .onComplete.addOnce(() => {cursor.visible = false})
         }
       }
     }

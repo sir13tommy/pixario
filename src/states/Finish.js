@@ -10,17 +10,19 @@ export default class extends Phaser.State {
 
     let sparcles = game.add.emitter(0, 0, 10)
     sparcles.makeParticles('assets', ['sparkle_1.png', 'sparkle_2.png'])
-    sparcles.gravity = 0
+    sparcles.gravity = 100
+    sparcles.maxParticleSpeed.set(80, -120)
+    sparcles.minParticleSpeed.set(-80, -140)
 
     let trophy = game.add.image(0, 0, 'assets', 'trophy.png')
     trophy.anchor.set(0.5)
-    trophy.alignIn(game.camera.view, Phaser.CENTER, 0, -100)
+    trophy.alignIn(game.camera.view, Phaser.CENTER, 0, -120)
 
-    sparcles.alignIn(trophy, Phaser.CENTER, 0, 0)
+    sparcles.alignIn(trophy, Phaser.CENTER, 0, -30)
     sparcles.start(false, Phaser.Timer.SECOND * 1.5, null, 0)
 
     let congrat = game.add.text(0, 0, 'You won!', {
-      font: 'normal 60px sf_pro_textregular',
+      font: 'normal 60px montserratbold',
       fill: '#ffffff'
     })
     congrat.anchor.set(0.5)
@@ -49,10 +51,11 @@ export default class extends Phaser.State {
     let ctaBtnFrame = 'cta-button.png'
     let ctaBtn = game.add.button(0, 0, 'ui', ctaAction, null, ctaBtnFrame, ctaBtnFrame, ctaBtnFrame)
     ctaBtn.anchor.set(0.5)
+    ctaBtn.scale.set(1.4)
     ctaBtn.alignIn(game.camera.view, Phaser.BOTTOM_CENTER, 0, -30)
 
-    let ctaBtnContent = game.add.text(0, 3, 'Install Now', {
-      font: 'normal 27px sf_pro_textregular',
+    let ctaBtnContent = game.add.text(0, 3, 'Install to continue', {
+      font: 'normal 20px sf_pro_textregular',
       fill: '#ffffff'
     })
     ctaBtnContent.anchor.set(0.5)
@@ -71,7 +74,7 @@ export default class extends Phaser.State {
       .start()
 
     let ctaIdle = game.add.tween(ctaBtn.scale)
-      .to({x: 0.7, y: 0.7})
+      .to({x: 0.9, y: 0.9})
       .repeat(-1)
       .yoyo(true)
 
