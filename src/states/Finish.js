@@ -27,6 +27,7 @@ export default class extends Phaser.State {
     congrat.alignTo(trophy, Phaser.BOTTOM_CENTER, 0, 20)
 
     let scoreHolder = game.add.image(0, 0, 'ui', 'score_holder.png')
+    scoreHolder.scale.set(1.1)
     scoreHolder.alignTo(congrat, Phaser.BOTTOM_CENTER, 0, 15)
 
     let star = game.add.image(0, 0, 'ui', 'star.png')
@@ -39,7 +40,7 @@ export default class extends Phaser.State {
     })
     scoreKey.alignTo(star, Phaser.RIGHT_CENTER, 8, 3)
 
-    let score = game.add.text(0, 0, '342', {
+    let score = game.add.text(0, 0, '1238', {
       font: 'normal 33px sf_pro_textregular',
       fill: '#ffd106'
     })
@@ -69,11 +70,18 @@ export default class extends Phaser.State {
       .delay(Phaser.Timer.SECOND * 0.5)
       .start()
 
+    let ctaIdle = game.add.tween(ctaBtn.scale)
+      .to({x: 0.7, y: 0.7})
+      .repeat(-1)
+      .yoyo(true)
+
     game.add.tween(ctaBtn.scale)
       .from({x: 0, y: 0})
       .easing(Phaser.Easing.Bounce.Out)
       .delay(Phaser.Timer.SECOND * 0.2)
+      .chain(ctaIdle)
       .start()
+
 
     function ctaAction () {
       if (typeof FbPlayableAd !== 'undefined' && FbPlayableAd.onCTAClick) {

@@ -2,7 +2,7 @@
 
 {
 	"filename": "cta-button.png",
-	"frame": {"x":200,"y":0,"w":200,"h":63},
+	"frame": {"x":205,"y":0,"w":200,"h":63},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":63},
@@ -10,7 +10,7 @@
 },
 {
 	"filename": "hand.png",
-	"frame": {"x":0,"y":67,"w":100,"h":100},
+	"frame": {"x":0,"y":72,"w":100,"h":100},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":100,"h":100},
@@ -18,7 +18,7 @@
 },
 {
 	"filename": "hint.png",
-	"frame": {"x":100,"y":67,"w":336,"h":110},
+	"frame": {"x":105,"y":72,"w":336,"h":110},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":336,"h":110},
@@ -34,7 +34,7 @@
 },
 {
 	"filename": "star.png",
-	"frame": {"x":400,"y":0,"w":71,"h":67},
+	"frame": {"x":410,"y":0,"w":71,"h":67},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":71,"h":67},
@@ -45,8 +45,8 @@
 	"version": "1.0",
 	"image": "ui.png",
 	"format": "RGBA8888",
-	"size": {"w":471,"h":177},
+	"size": {"w":481,"h":182},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:d66fa2dd7142245481c7fc40cffcf011:de3964f024e05a2f239433e235890e64:5b04aa198265472a3c5f56958d78e97b$"
+	"smartupdate": "$TexturePacker:SmartUpdate:f62805a56c4e9a26a0817572fa84f7c2:de3964f024e05a2f239433e235890e64:5b04aa198265472a3c5f56958d78e97b$"
 }
 }
