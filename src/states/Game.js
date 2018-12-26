@@ -167,7 +167,7 @@ export default class extends Phaser.State {
       .delay(Phaser.Timer.SECOND * 0.5)
       .start()
     
-    let hintContent = game.make.text(0, 0, 'tap to coloring'.toUpperCase(), {
+    let hintContent = game.make.text(0, 0, 'tap to color'.toUpperCase(), {
       font: 'normal 35px sf_pro_textregular',
       fill: '#ffffff',
       align: 'center',
